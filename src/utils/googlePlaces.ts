@@ -12,6 +12,11 @@ declare type GooglePlacesPhoto = {
     photo_reference: string;
 };
 
+/**
+ * Retrieves an image from Google Places API based on the provided place name.
+ * @param c - The context object containing the request parameters and environment variables.
+ * @returns A Promise that resolves to a Response object containing the image.
+ */
 export async function getImage(c: Context) {
     const {name} = c.req.param();
 
