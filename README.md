@@ -2,6 +2,7 @@
 
 This project is a server-side rendered (SSR) weather application built using Cloudflare Pages. It allows users to get real-time weather information for any location.
 
+## DEMO = [Click Here](https://ssr-cf-pages-weather-app.pages.dev/)
 ## Features
 
 - Server-side rendering for improved performance and SEO.
