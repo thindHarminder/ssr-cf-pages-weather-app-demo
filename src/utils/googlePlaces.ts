@@ -23,17 +23,15 @@ export async function getImage(c: Context) {
     //find place by name using Google Places API
 
     // get place by name from cache
-    let photoReference = await c.env.sse_weather_app_test.get(name);
+    const key = `place-${name}`;
+    let photoReference = await c.env.sse_weather_app_test.get(key);
     if (!photoReference) {
     const response = await fetch(`https://maps.googleapis.com/maps/api/place/findplacefromtext/json?key=${c.env.GOOGLE_PLACES_API_KEY}&input=${name}&inputtype=textquery&fields=photos`);
     const data = await response.json() as GooglePlacesResponse;
     //get photo reference
     photoReference = data.candidates[0].photos[0].photo_reference;
-    await c.env.sse_weather_app_test.put(name, photoReference, {expirationTtl: 60});
+    await c.env.sse_weather_app_test.put(key, photoReference, {expirationTtl: 6000});
     }
-
-   
-    console.log(photoReference);
 
 
     //get photo by reference
