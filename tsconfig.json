@@ -9,8 +9,7 @@
       "ESNext"
     ],
     "types": [
-      "@cloudflare/workers-types",
-      "vite/client"
+      "./types.d.ts"
     ],
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx"

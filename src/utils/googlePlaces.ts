@@ -20,15 +20,20 @@ declare type GooglePlacesPhoto = {
 export async function getImage(c: Context) {
     const {name} = c.req.param();
 
-    //find place by nam eusing Google Places API
+    //find place by name using Google Places API
+
+    // get place by name from cache
+    let photoReference = await c.env.sse_weather_app_test.get(name);
+    if (!photoReference) {
     const response = await fetch(`https://maps.googleapis.com/maps/api/place/findplacefromtext/json?key=${c.env.GOOGLE_PLACES_API_KEY}&input=${name}&inputtype=textquery&fields=photos`);
     const data = await response.json() as GooglePlacesResponse;
-
-    console.log(data);
-
     //get photo reference
-    const photoReference = data.candidates[0].photos[0].photo_reference;
+    photoReference = data.candidates[0].photos[0].photo_reference;
+    await c.env.sse_weather_app_test.put(name, photoReference, {expirationTtl: 60});
+    }
 
+   
+    console.log(photoReference);
 
 
     //get photo by reference

@@ -4,9 +4,10 @@ pages_build_output_dir = "./dist"
 [vars]
 WEBFLOW_DOMAIN = "https://thind-styleguide-v2-766e0fe6400f2a5409b.webflow.io/"
 
-# [[kv_namespaces]]
-# binding = "MY_KV_NAMESPACE"
-# id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+[[kv_namespaces]]
+binding = "sse_weather_app_test"
+id = "b03e539d4c9a495ebf8dd0fbd8868066"
+preview_id = "64b8f3d351334a64800774a7ebbddd1d"
 
 # [[r2_buckets]]
 # binding = "MY_BUCKET"

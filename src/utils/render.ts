@@ -12,10 +12,18 @@ type ModifyHtmlFunction = ($: any, c: Context) => void;
  * @returns A promise that resolves to the rendered HTML.
  */
 async function ssr(c: Context, url: string, modifications: ModifyHtmlFunction): Promise<string> {
-  // Fetch the HTML content from the Webflow URL
-  const response = await fetch(url);
-// get HTML content from the response
-  const text = await response.text();
+
+  let html = await c.env.sse_weather_app_test.get(url);
+  if (!html) {
+    html = await fetch(url);
+    console.log('fetching fresh webflow html');
+    html =  await html.text();
+    await c.env.sse_weather_app_test.put(url, html, { expirationTtl: 1800 });
+  } else {
+    console.log('fetching webflow from cache');
+  }
+
+  const text =  html
 
   // Load the HTML content into a Cheerio instance to create a vartual DOM on the server
   const $ = cheerio.load(text);
@@ -25,6 +33,7 @@ async function ssr(c: Context, url: string, modifications: ModifyHtmlFunction): 
 
   // Return the modified HTML content
   return await $.html();
+
 }
 
 // Export the server-side rendering function and the HTML modification function

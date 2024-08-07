@@ -1,24 +1,29 @@
-declare type Context = import('hono').Context
-
-declare type weatherResponse = {
-  current: {
-    temperature_2m: number;
-    relative_humidity_2m: number;
-    weather_code: number;
-    cloud_cover: number;
-    surface_pressure: number;
-    wind_speed_10m: number;
-  };
-};
-
 
 import { ssr, ModifyHtmlFunction } from '../utils/render';
+import { getWeatherData } from '../utils/weather';
 
 export default async function page(c: Context) {
   const url = c.env.WEBFLOW_DOMAIN as string;
-  const modifiedHtml = await ssr(c, url, modifications);
 
-  return new Response(await modifiedHtml, {
+  // Retrieve longitude and latitude from the request information
+  const info = c.req.raw.cf || {};
+  const longitude = info.longitude || 52.52;
+  const latitude = info.latitude || 13.419998;
+
+  //get page from cache
+  const key = `${url}+${latitude}+${longitude}`;
+
+  let html = await c.env.sse_weather_app_test.get(key);
+  if (!html) {
+    console.log('fetching fresh ssr page');
+    html = await ssr(c, url, modifications);
+    await c.env.sse_weather_app_test.put(key, html, { expirationTtl: 60 });
+  } else {
+    console.log('fetching ssr page srom cache');
+  }
+  
+
+  return new Response(await html, {
     headers: {
       'content-type': 'text/html;charset=UTF8',
     },
@@ -32,18 +37,20 @@ export default async function page(c: Context) {
  * @param c - The request context object.
  */
 const modifications: ModifyHtmlFunction = async ($, c) => {
-  // Retrieve longitude and latitude from the request information
-  const info = c.req.raw.cf || {};
-  const longitude = info.longitude || 52.52;
-  const latitude = info.latitude || 13.419998;
+    // Retrieve longitude and latitude from the request information
+    const info = c.req.raw.cf || {};
+    const longitude = info.longitude || 52.52;
+    const latitude = info.latitude || 13.419998;
 
-  console.log(longitude, latitude, info);
+  const key = `${latitude}+${longitude}`;
+  let forecat = await c.env.sse_weather_app_test.get(key);
+  forecat = forecat ? JSON.parse(forecat) : null;
+  if (!forecat) {
+  forecat = await getWeatherData(c, latitude, longitude);
+  await c.env.sse_weather_app_test.put(key, JSON.stringify(forecat), {expirationTtl: 600});
+  }
 
-  // Fetch weather data from the Open Meteo API
-  const weather = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,cloud_cover,surface_pressure,wind_speed_10m`, {
-    headers: c.req.header(),
-  });
-  const response = await weather.json() as weatherResponse;
+  const response = forecat;
 
   // Set default city to Berlin if not provided in the request information
   const city = info.city || 'Berlin';
