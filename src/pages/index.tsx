@@ -17,9 +17,9 @@ export default async function page(c: Context) {
   if (!html) {
     console.log('fetching fresh ssr page');
     html = await ssr(c, url, modifications);
-    await c.env.sse_weather_app_test.put(key, html, { expirationTtl: 60 });
+    await c.env.sse_weather_app_test.put(key, html, { expirationTtl: 1800 });
   } else {
-    console.log('fetching ssr page srom cache');
+    console.log('fetching ssr page from cache');
   }
   
 
@@ -51,6 +51,8 @@ const modifications: ModifyHtmlFunction = async ($, c) => {
   }
 
   const response = forecat;
+  
+  console.log(response);
 
   // Set default city to Berlin if not provided in the request information
   const city = info.city || 'Berlin';
