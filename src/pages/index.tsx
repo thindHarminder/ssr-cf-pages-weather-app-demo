@@ -6,7 +6,8 @@ export default async function page(c: Context) {
   const url = c.env.WEBFLOW_DOMAIN as string;
 
   // Retrieve longitude and latitude from the request information
-  const info = c.req.raw.cf || {};
+  const req = c.req as unknown as honoRequest;
+  const info = req.raw.cf || {} as cfHeaders;
   const longitude = info.longitude || 52.52;
   const latitude = info.latitude || 13.419998;
 
@@ -38,7 +39,8 @@ export default async function page(c: Context) {
  */
 const modifications: ModifyHtmlFunction = async ($, c) => {
     // Retrieve longitude and latitude from the request information
-    const info = c.req.raw.cf || {};
+    const req = c.req as unknown as honoRequest;
+    const info = req.raw.cf || {} as cfHeaders;
     const longitude = info.longitude || 52.52;
     const latitude = info.latitude || 13.419998;
 

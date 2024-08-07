@@ -13,4 +13,16 @@
   type Bindings = {
     [key in keyof CloudflareBindings]: CloudflareBindings[key];
   }
+  type cfHeaders = {
+    [key: string]: string;
+  }
+  interface honoRequest extends Request {
+    raw: {
+      cf: {
+        city?: string;
+        latitude?: number;
+        longitude?: number;
+      };
+    };
+  }
 
